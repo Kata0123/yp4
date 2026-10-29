@@ -1,0 +1,26 @@
+.field-error {
+    display: block;
+    margin-top: 1px;
+    color: #d63c48;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.field-hint {
+    display: block;
+    color: #84909b;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.input-error {
+    border-color: #e15b63 !important;
+    background: #fffafa;
+}
+
+.input-error:focus {
+    border-color: #d63c48 !important;
+    box-shadow: 0 0 0 3px rgba(214, 60, 72, 0.1) !important;
+}

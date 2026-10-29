@@ -1,0 +1,191 @@
+:root {
+    color-scheme: light;
+}
+
+html[data-theme="dark"] {
+    color-scheme: dark;
+}
+
+html[data-theme="dark"],
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root {
+    background: #101419;
+    color: #e8edf1;
+}
+
+html[data-theme="dark"] {
+    --primary: #29aa9b;
+    --primary-dark: #78d7c8;
+    --text: #e8edf1;
+    --muted: #a2adb8;
+    --border: #343d47;
+    --background: #101419;
+    --white: #1c232b;
+    --shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+html[data-theme="dark"] .site-header,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .service-card,
+html[data-theme="dark"] .filters,
+html[data-theme="dark"] .site-footer,
+html[data-theme="dark"] .admin-tab {
+    background: #1c232b;
+    border-color: #343d47;
+    color: #e8edf1;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+    background: #151b22;
+    border-color: #3c4652;
+    color: #eef3f7;
+}
+
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder {
+    color: #8795a2;
+}
+
+html[data-theme="dark"] .brand,
+html[data-theme="dark"] .brand strong,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] .service-footer strong,
+html[data-theme="dark"] .order-total strong,
+html[data-theme="dark"] .cart-price strong,
+html[data-theme="dark"] .review-heading strong,
+html[data-theme="dark"] .admin-record strong {
+    color: #eef3f7;
+}
+
+html[data-theme="dark"] .main-nav button,
+html[data-theme="dark"] .user-greeting,
+html[data-theme="dark"] .filters label,
+html[data-theme="dark"] .form-stack label,
+html[data-theme="dark"] .review-form label,
+html[data-theme="dark"] .admin-form label,
+html[data-theme="dark"] .order-total span,
+html[data-theme="dark"] .order-details strong {
+    color: #c6d0d9;
+}
+
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .service-description,
+html[data-theme="dark"] .service-duration,
+html[data-theme="dark"] .admin-record p,
+html[data-theme="dark"] .review-bottom {
+    color: #a2adb8;
+}
+
+html[data-theme="dark"] .button-ghost,
+html[data-theme="dark"] .quantity button {
+    background: #252e38;
+    color: #e0e8ee;
+    border-color: #46515d;
+}
+
+html[data-theme="dark"] .button-primary {
+    color: #ffffff;
+    background: #17877c;
+}
+
+html[data-theme="dark"] .button-primary:hover {
+    background: #1a9b8e;
+}
+
+html[data-theme="dark"] .main-nav button.nav-active,
+html[data-theme="dark"] .admin-tab.active,
+html[data-theme="dark"] .role-chip,
+html[data-theme="dark"] .results-count,
+html[data-theme="dark"] .category-chip {
+    background: #173e3a;
+    border-color: #285f57;
+    color: #9be6d8;
+}
+
+html[data-theme="dark"] .service-symbol,
+html[data-theme="dark"] .review-form,
+html[data-theme="dark"] .order-items {
+    background: #242e37;
+    color: #9be6d8;
+}
+
+html[data-theme="dark"] .order-items strong,
+html[data-theme="dark"] .order-items span,
+html[data-theme="dark"] .review p {
+    color: #e0e7ed;
+}
+
+html[data-theme="dark"] .review,
+html[data-theme="dark"] .cart-item,
+html[data-theme="dark"] .order-heading,
+html[data-theme="dark"] .order-total,
+html[data-theme="dark"] .service-footer,
+html[data-theme="dark"] .admin-record {
+    border-color: #343d47;
+}
+
+html[data-theme="dark"] .alert-error {
+    background: #452427;
+    border-color: #794348;
+    color: #ffb7bd;
+}
+
+html[data-theme="dark"] .alert-success {
+    background: #173b2e;
+    border-color: #285c44;
+    color: #a6eccc;
+}
+
+html[data-theme="dark"] .field-hint {
+    color: #9aa9b7;
+}
+
+html[data-theme="dark"] .input-error {
+    background: #331d24;
+    border-color: #c55c66;
+}
+
+html[data-theme="dark"] .status-new {
+    background: #243957;
+    color: #b6d0ff;
+}
+
+html[data-theme="dark"] .status-confirmed {
+    background: #49371f;
+    color: #ffd18b;
+}
+
+html[data-theme="dark"] .status-completed {
+    background: #1a4435;
+    color: #a4e9c2;
+}
+
+html[data-theme="dark"] .status-cancelled {
+    background: #49282b;
+    color: #ffb2b8;
+}
+
+html[data-theme="dark"] .button-danger {
+    background: #49282b;
+    color: #ffb2b8;
+    border-color: #794348;
+}
+
+html[data-theme="dark"] .danger {
+    color: #ff9ca5;
+}
+
+.theme-switch {
+    width: 43px;
+    height: 43px;
+    padding: 0;
+    border-radius: 12px;
+    font-size: 25px;
+    line-height: 1;
+    flex-shrink: 0;
+}
