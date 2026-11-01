@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { api, money, localToday } from '../api/api.js'
 import PasswordRequestsPanel from './PasswordRequestsPanel.jsx'
@@ -64,6 +65,7 @@ const FIELDS = {
     ]
 }
 
+// Преобразует запись ресурса в начальные значения административной формы.
 function draftFrom(item = {}) {
     return {
         name: item.name || '',
@@ -90,6 +92,7 @@ function draftFrom(item = {}) {
     }
 }
 
+// Возвращает название записи для отображения в списке администратора.
 function titleOf(section, item) {
     if (section === 'categories') return item.name
     if (section === 'services') return item.title
@@ -99,6 +102,7 @@ function titleOf(section, item) {
     return `Заказ ${item.code?.slice(0, 8).toUpperCase()}`
 }
 
+// Формирует дополнительную информацию о записи в административном списке.
 function detailsOf(section, item) {
     if (section === 'categories') return item.description || 'Категория'
     if (section === 'services') {
@@ -110,6 +114,7 @@ function detailsOf(section, item) {
     return `${item.customer_name} · ${STATUSES[item.status] || item.status} · ${money(item.total)}`
 }
 
+// Управляет ресурсами системы через защищённые административные API.
 export default function AdminPage({ onUpdated }) {
     const [section, setSection] = useState('services')
     const [data, setData] = useState({})
@@ -120,6 +125,7 @@ export default function AdminPage({ onUpdated }) {
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
 
+    // Загружает данные, необходимые для административной панели.
     async function loadAll() {
         setLoading(true)
 
@@ -154,6 +160,7 @@ export default function AdminPage({ onUpdated }) {
         loadAll()
     }, [])
 
+    // Открывает форму добавления новой записи.
     function create() {
         setDraft(draftFrom())
         setEditor({ mode: 'create' })
@@ -161,6 +168,7 @@ export default function AdminPage({ onUpdated }) {
         setMessage('')
     }
 
+    // Открывает форму редактирования выбранной записи.
     function edit(item) {
         setDraft(draftFrom(item))
         setEditor({ mode: 'edit', code: item.code })
@@ -168,6 +176,7 @@ export default function AdminPage({ onUpdated }) {
         setMessage('')
     }
 
+    // Обновляет выбранное поле административной формы.
     function change(key, value) {
         setDraft(previous => ({
             ...previous,
@@ -175,6 +184,7 @@ export default function AdminPage({ onUpdated }) {
         }))
     }
 
+    // Формирует варианты выбора из связанных ресурсов или статусов.
     function optionsFor(source) {
         if (source === 'statuses') {
             return Object.entries(STATUSES).map(([code, name]) => ({ code, name }))
@@ -190,6 +200,7 @@ export default function AdminPage({ onUpdated }) {
         }))
     }
 
+    // Валидирует данные и сохраняет изменения через API.
     async function save(event) {
         event.preventDefault()
         setBusy(true)
@@ -222,6 +233,7 @@ export default function AdminPage({ onUpdated }) {
         }
     }
 
+    // Удаляет выбранную запись после подтверждения.
     async function remove(item) {
         const question = section === 'categories'
             ? `Удалить категорию «${item.name}»? Услуги останутся без категории.`
@@ -251,17 +263,18 @@ export default function AdminPage({ onUpdated }) {
         }
     }
 
+    // Создаёт подходящий элемент редактирования для типа поля.
     function fieldControl(field) {
         if (field.type === 'checkbox') {
             return (
                 <span className="checkbox-label">
-          <input
-              type="checkbox"
-              checked={Boolean(draft[field.key])}
-              onChange={e => change(field.key, e.target.checked)}
-          />
+                    <input
+                        type="checkbox"
+                        checked={Boolean(draft[field.key])}
+                        onChange={e => change(field.key, e.target.checked)}
+                    />
                     {field.label}
-        </span>
+                </span>
             )
         }
 

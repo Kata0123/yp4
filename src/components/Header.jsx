@@ -1,3 +1,4 @@
+// Отображает навигацию, сведения о пользователе, корзину и переключатель темы.
 export default function Header({
                                    user,
                                    cart,
@@ -26,9 +27,9 @@ export default function Header({
                     <span className="brand-mark">⌂</span>
 
                     <span>
-            <strong>ДомСервис</strong>
-            <small>Услуги для вашего дома</small>
-          </span>
+                        <strong>ДомСервис</strong>
+                        <small>Услуги для вашего дома</small>
+                    </span>
                 </button>
 
                 <nav className="main-nav">
@@ -46,10 +47,11 @@ export default function Header({
                                 onClick={() => navigate('cart')}
                             >
                                 Корзина
+
                                 {count > 0 && (
                                     <span className="nav-count">
-                    {count}
-                  </span>
+                                        {count}
+                                    </span>
                                 )}
                             </button>
 
@@ -100,9 +102,9 @@ export default function Header({
 
                     {user ? (
                         <>
-              <span className="user-greeting">
-                {user.full_name?.split(' ')[0] || 'Пользователь'}
-              </span>
+                            <span className="user-greeting">
+                                {user.full_name?.split(' ')[0] || 'Пользователь'}
+                            </span>
 
                             <button
                                 className="button button-ghost"

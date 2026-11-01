@@ -4,6 +4,7 @@ export const EMAIL_PATTERN = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+
 
 export const PASSWORD_PATTERN = /^[A-Z][\x21-\x7E]{7,71}$/
 
+// Проверяет формат полного имени.
 export function validateName(value) {
     if (typeof value !== 'string') {
         return 'Введите полное имя'
@@ -47,12 +48,14 @@ export function validateName(value) {
     return ''
 }
 
+// Проверяет телефон по установленному формату.
 export function validatePhone(value) {
     return PHONE_PATTERN.test(value)
         ? ''
         : 'Телефон должен содержать ровно 11 цифр и начинаться с 7'
 }
 
+// Проверяет корректность адреса электронной почты.
 export function validateEmail(value) {
     if (
         typeof value !== 'string' ||
@@ -65,6 +68,7 @@ export function validateEmail(value) {
     return ''
 }
 
+// Проверяет пароль по правилам безопасности приложения.
 export function validatePassword(value) {
     if (typeof value !== 'string') {
         return 'Введите пароль'
@@ -89,6 +93,7 @@ export function validatePassword(value) {
     return ''
 }
 
+// Нормализует введённый номер телефона.
 export function normalizePhone(value) {
     const digits = String(value).replace(/\D/g, '')
 
@@ -103,6 +108,7 @@ export function normalizePhone(value) {
     return `7${digits.slice(0, 10)}`
 }
 
+// Проверяет состав и формат адреса.
 export function validateAddress(value) {
     if (typeof value !== 'string') {
         return 'Введите адрес'

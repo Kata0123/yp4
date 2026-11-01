@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { api } from '../api/api.js'
 
@@ -7,6 +8,7 @@ const statusNames = {
     rejected: 'Отклонён'
 }
 
+// Отображает запросы на смену пароля и действия администратора.
 export default function PasswordRequestsPanel() {
     const [items, setItems] = useState([])
     const [loading, setLoading] = useState(true)
@@ -14,6 +16,7 @@ export default function PasswordRequestsPanel() {
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
 
+    // Загружает все запросы на смену пароля через административный API.
     async function load() {
         setLoading(true)
         setError('')
@@ -33,6 +36,7 @@ export default function PasswordRequestsPanel() {
         load()
     }, [])
 
+    // Подтверждает или отклоняет запрос после согласия администратора.
     async function processRequest(request, action) {
         const title = action === 'approve'
             ? 'Подтвердить изменение пароля'

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { api } from '../api/api.js'
 import {
@@ -8,6 +9,7 @@ import {
     normalizePhone
 } from '../utils/validation.js'
 
+// Позволяет редактировать личные данные и менять пароль через API.
 export default function ProfilePage({ user, onUpdate }) {
     const [profile, setProfile] = useState({
         fullName: '',
@@ -37,6 +39,7 @@ export default function ProfilePage({ user, onUpdate }) {
         })
     }, [user])
 
+    // Обновляет поле личной информации с проверкой формата ввода.
     function changeProfile(key, value) {
         let next = value
 
@@ -63,6 +66,7 @@ export default function ProfilePage({ user, onUpdate }) {
         setError('')
     }
 
+    // Обновляет поля формы изменения пароля.
     function changePassword(key, value) {
         setPasswords(previous => ({
             ...previous,
@@ -75,6 +79,7 @@ export default function ProfilePage({ user, onUpdate }) {
         setError('')
     }
 
+    // Проверяет данные профиля и сохраняет изменения через API.
     async function saveProfile(event) {
         event.preventDefault()
         setBusy(true)
@@ -117,6 +122,7 @@ export default function ProfilePage({ user, onUpdate }) {
         }
     }
 
+    // Проверяет текущий и новый пароли, затем отправляет запрос на изменение.
     async function savePassword(event) {
         event.preventDefault()
         setBusy(true)

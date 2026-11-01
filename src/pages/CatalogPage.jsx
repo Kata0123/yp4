@@ -9,6 +9,7 @@ const emptyFilters = {
     maxPrice: ''
 }
 
+// Отображает каталог и управляет поиском, фильтрами и открытием отзывов.
 export default function CatalogPage({
                                         user,
                                         services = [],
@@ -24,6 +25,7 @@ export default function CatalogPage({
     const [selectedService, setSelectedService] = useState(null)
     const [error, setError] = useState('')
 
+    // Обновляет выбранное поле фильтра и сбрасывает сообщение об ошибке.
     function change(key, value) {
         setFilters(previous => ({
             ...previous,
@@ -33,6 +35,7 @@ export default function CatalogPage({
         setError('')
     }
 
+    // Проверяет введённые минимальную и максимальную цены.
     function validatePrices() {
         const hasMin = filters.minPrice !== ''
         const hasMax = filters.maxPrice !== ''
@@ -65,6 +68,7 @@ export default function CatalogPage({
         return ''
     }
 
+    // Проверяет параметры поиска и применяет фильтры через родительский компонент.
     async function submit(event) {
         event.preventDefault()
         setError('')
@@ -90,6 +94,7 @@ export default function CatalogPage({
         }
     }
 
+    // Сбрасывает параметры поиска и повторно загружает каталог.
     async function reset() {
         const next = { ...emptyFilters }
 
@@ -127,8 +132,8 @@ export default function CatalogPage({
                 </div>
 
                 <span className="results-count">
-          {serviceList.length} услуг
-        </span>
+                    {serviceList.length} услуг
+                </span>
             </div>
 
             <form

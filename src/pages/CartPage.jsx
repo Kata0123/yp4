@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { money, localToday } from '../api/api.js'
 import { validateAddress } from '../utils/validation.js'
 
+// Показывает корзину и проверяет адрес и дату перед оформлением заказа.
 export default function CartPage({
                                      cart,
                                      user,
@@ -20,12 +21,14 @@ export default function CartPage({
     const [errors, setErrors] = useState({})
     const [touched, setTouched] = useState({})
 
+    // Подставляет адрес пользователя при загрузке или обновлении профиля.
     useEffect(() => {
         setAddress(user?.default_address || '')
         setErrors({})
         setTouched({})
     }, [user?.code, user?.default_address])
 
+    // Обновляет адрес и проверяет его после изменения.
     function changeAddress(value) {
         const next = value.slice(0, 250)
 
@@ -39,6 +42,7 @@ export default function CartPage({
         }
     }
 
+    // Проверяет корректность даты и запрет выбора прошедшего дня.
     function validateDate(value) {
         if (!value) {
             return 'Укажите дату оказания услуги'
@@ -64,6 +68,7 @@ export default function CartPage({
         return ''
     }
 
+    // Обновляет дату выполнения услуги и проверяет допустимость значения.
     function changeDate(value) {
         setDeliveryDate(value)
 
@@ -75,10 +80,12 @@ export default function CartPage({
         }
     }
 
+    // Обновляет комментарий к заказу с ограничением длины.
     function changeComment(value) {
         setComment(value.slice(0, 1000))
     }
 
+    // Проверяет поля заказа и передаёт данные на оформление.
     function submit(event) {
         event.preventDefault()
 
@@ -142,9 +149,9 @@ export default function CartPage({
                                     key={item.service_code}
                                 >
                                     <div className="grow">
-                    <span className="category-chip">
-                      {item.category_name}
-                    </span>
+                                        <span className="category-chip">
+                                            {item.category_name}
+                                        </span>
 
                                         <h3>{item.title}</h3>
 
@@ -243,13 +250,13 @@ export default function CartPage({
 
                                 {touched.address && errors.address && (
                                     <span className="field-error" role="alert">
-                    {errors.address}
-                  </span>
+                                        {errors.address}
+                                    </span>
                                 )}
 
                                 <span className="field-hint">
-                  Укажите город, улицу и номер дома через запятую.
-                </span>
+                                    Укажите город, улицу и номер дома через запятую.
+                                </span>
                             </label>
 
                             <label>
@@ -282,8 +289,8 @@ export default function CartPage({
 
                                 {touched.deliveryDate && errors.deliveryDate && (
                                     <span className="field-error" role="alert">
-                    {errors.deliveryDate}
-                  </span>
+                                        {errors.deliveryDate}
+                                    </span>
                                 )}
                             </label>
 
@@ -299,9 +306,9 @@ export default function CartPage({
                                 />
 
                                 <span className="field-hint">
-                  Необязательно. Можно написать любую дополнительную информацию.
+                                    Необязательно. Можно написать любую дополнительную информацию.
                                     {` ${comment.length}/1000`}
-                </span>
+                                </span>
                             </label>
 
                             <div className="order-total">

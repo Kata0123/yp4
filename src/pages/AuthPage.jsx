@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react'
 import { api } from '../api/api.js'
 import {
@@ -16,6 +17,7 @@ const initialForm = {
     confirmPassword: ''
 }
 
+// Обрабатывает формы входа, регистрации и восстановления доступа.
 export default function AuthPage({
                                      mode,
                                      token,
@@ -40,6 +42,7 @@ export default function AuthPage({
         setShowPassword(false)
     }, [mode])
 
+    // Определяет сообщение об ошибке для указанного поля формы.
     function checkField(key, value, current = form) {
         if (key === 'fullName') return validateName(value)
         if (key === 'email') return validateEmail(value)
@@ -59,6 +62,7 @@ export default function AuthPage({
         return ''
     }
 
+    // Обновляет поле формы с учётом ограничений на ввод.
     function change(key, value) {
         let next = value
 
@@ -108,6 +112,7 @@ export default function AuthPage({
         }
     }
 
+    // Запускает валидацию поля после потери фокуса.
     function blur(key) {
         setTouched(previous => ({
             ...previous,
@@ -120,6 +125,7 @@ export default function AuthPage({
         }))
     }
 
+    // Проверяет обязательные поля перед отправкой формы.
     function validateForm() {
         const fields = mode === 'register'
             ? ['fullName', 'phone', 'email', 'password', 'confirmPassword']
@@ -145,6 +151,7 @@ export default function AuthPage({
         return Object.keys(found).length === 0
     }
 
+    // Проверяет форму и отправляет данные на сервер.
     async function submit(event) {
         event.preventDefault()
         setServerError('')
@@ -226,6 +233,7 @@ export default function AuthPage({
         }
     }
 
+    // Выводит сообщение об ошибке для конкретного поля.
     function renderError(key) {
         return touched[key] && errors[key] ? (
             <span className="field-error" role="alert">
@@ -234,6 +242,7 @@ export default function AuthPage({
         ) : null
     }
 
+    // Подбирает CSS-класс поля на основе результата валидации.
     function inputClass(key) {
         return touched[key] && errors[key] ? 'input-error' : ''
     }

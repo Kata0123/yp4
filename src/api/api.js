@@ -1,3 +1,4 @@
+// Выполняет HTTP-запросы к серверу и приводит ошибки к понятным сообщениям.
 export async function api(path, options = {}) {
     let response
 
@@ -25,6 +26,7 @@ export async function api(path, options = {}) {
     return data
 }
 
+// Форматирует сумму в рублях для отображения в интерфейсе.
 export function money(value) {
     return new Intl.NumberFormat('ru-RU', {
         style: 'currency',
@@ -32,6 +34,7 @@ export function money(value) {
     }).format(Number(value) || 0)
 }
 
+// Возвращает текущую локальную дату в формате YYYY-MM-DD.
 export function localToday() {
     const date = new Date()
     const year = date.getFullYear()

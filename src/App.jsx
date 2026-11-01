@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from 'react'
 import { api } from './api/api.js'
 
@@ -21,6 +22,7 @@ const EMPTY_FILTERS = {
   maxPrice: ''
 }
 
+// Получает сохранённую тему оформления; по умолчанию использует светлую.
 function getInitialTheme() {
   try {
     return localStorage.getItem('domservice_theme') === 'dark'
@@ -31,6 +33,7 @@ function getInitialTheme() {
   }
 }
 
+// Управляет состоянием приложения, навигацией, авторизацией и обменом данными с сервером.
 export default function App() {
   const resetToken = new URLSearchParams(
       window.location.search
@@ -65,6 +68,7 @@ export default function App() {
     }
   }, [theme])
 
+  // Переключает светлую и тёмную темы интерфейса.
   function toggleTheme() {
     setTheme(previous =>
         previous === 'dark' ? 'light' : 'dark'
@@ -78,6 +82,7 @@ export default function App() {
     })
   }, [])
 
+  // Загружает список категорий и услуг с учётом заданных фильтров.
   const refreshCatalog = useCallback(async (currentFilters = EMPTY_FILTERS) => {
     setCatalogLoading(true)
 
@@ -115,6 +120,7 @@ export default function App() {
     }
   }, [])
 
+  // Обновляет содержимое корзины авторизованного пользователя через API.
   const refreshCart = useCallback(async () => {
     const data = await api('/cart')
 
@@ -124,6 +130,7 @@ export default function App() {
     })
   }, [])
 
+  // Получает историю заказов текущего пользователя.
   const refreshOrders = useCallback(async () => {
     const data = await api('/orders')
 
@@ -135,6 +142,7 @@ export default function App() {
   useEffect(() => {
     let active = true
 
+    // Проверяет текущую сессию и загружает необходимые данные при запуске.
     async function initialize() {
       try {
         const [authData, categoryData, serviceData] = await Promise.all([
@@ -234,6 +242,7 @@ export default function App() {
     }
   }, [view, user?.code, showError])
 
+  // Выполняет асинхронное действие с общим управлением загрузкой и ошибками.
   async function run(action) {
     setBusy(true)
     setNotice(null)
@@ -247,6 +256,7 @@ export default function App() {
     }
   }
 
+  // Переключает раздел приложения с учётом доступа пользователя.
   function navigate(page) {
     const privatePages = ['cart', 'orders', 'profile']
 
@@ -280,11 +290,13 @@ export default function App() {
     })
   }
 
+  // Применяет параметры поиска и фильтрации к каталогу.
   async function filterCatalog(newFilters) {
     await refreshCatalog(newFilters)
     setFilters(newFilters)
   }
 
+  // Добавляет выбранную услугу в корзину через серверный API.
   async function addToCart(service) {
     if (!user) {
       navigate('login')
@@ -309,6 +321,7 @@ export default function App() {
     })
   }
 
+  // Изменяет количество выбранной услуги в корзине.
   async function changeQuantity(code, quantity) {
     if (quantity < 1 || quantity > 99) return
 
@@ -322,6 +335,7 @@ export default function App() {
     })
   }
 
+  // Удаляет услугу из корзины пользователя.
   async function removeFromCart(code) {
     await run(async () => {
       await api(`/cart/${code}`, {
@@ -337,6 +351,7 @@ export default function App() {
     })
   }
 
+  // Оформляет заказ и обновляет корзину и историю заказов.
   async function checkout(address, deliveryDate, comment) {
     await run(async () => {
       await api('/orders', {
@@ -359,6 +374,7 @@ export default function App() {
     })
   }
 
+  // Отправляет запрос на отмену выбранного заказа.
   async function cancelOrder(code) {
     if (!window.confirm('Вы действительно хотите отменить этот заказ?')) {
       return
@@ -378,6 +394,7 @@ export default function App() {
     })
   }
 
+  // Завершает сессию и сбрасывает пользовательские данные в интерфейсе.
   async function logout() {
     await run(async () => {
       await api('/auth/logout', {
@@ -396,6 +413,7 @@ export default function App() {
     })
   }
 
+  // Обновляет данные пользователя после успешной авторизации.
   function loginSuccess(loggedUser) {
     setUser(loggedUser)
     setView('catalog')
@@ -406,6 +424,7 @@ export default function App() {
     })
   }
 
+  // Перезагружает данные после изменений в административной панели.
   async function adminUpdated() {
     await refreshCatalog(filters)
 

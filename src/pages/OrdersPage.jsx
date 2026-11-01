@@ -7,6 +7,7 @@ const statusNames = {
     cancelled: 'Отменён'
 }
 
+// Выводит историю заказов, их статусы и действие отмены.
 export default function OrdersPage({
                                        orders = [],
                                        loading,
@@ -62,13 +63,13 @@ export default function OrdersPage({
                                         </h2>
 
                                         <span className="muted">
-                      Номер: {order.code?.slice(0, 8).toUpperCase()}
-                    </span>
+                                            Номер: {order.code?.slice(0, 8).toUpperCase()}
+                                        </span>
                                     </div>
 
                                     <span className={`status status-${order.status}`}>
-                    {statusNames[order.status] || order.status}
-                  </span>
+                                        {statusNames[order.status] || order.status}
+                                    </span>
                                 </div>
 
                                 <div className="order-details">
@@ -84,8 +85,8 @@ export default function OrdersPage({
                                         <p>
                                             <strong>Комментарий:</strong>{' '}
                                             <span style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>
-                        {order.comment}
-                      </span>
+                                                {order.comment}
+                                            </span>
                                         </p>
                                     )}
                                 </div>
@@ -93,9 +94,9 @@ export default function OrdersPage({
                                 <div className="order-items">
                                     {items.map((item, index) => (
                                         <div key={`${order.code}-${index}`}>
-                      <span>
-                        {item.title} × {item.quantity}
-                      </span>
+                                            <span>
+                                                {item.title} × {item.quantity}
+                                            </span>
 
                                             <strong>
                                                 {money(

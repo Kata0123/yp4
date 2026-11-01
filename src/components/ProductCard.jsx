@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { money } from '../api/api.js'
 
+// Показывает информацию об услуге, изображение, рейтинг и действия.
 export default function ProductCard({
                                         service,
                                         onAdd,
@@ -19,13 +20,13 @@ export default function ProductCard({
     return (
         <article className="service-card">
             <div className="service-card-top">
-        <span className="category-chip">
-          {category}
-        </span>
+                <span className="category-chip">
+                    {category}
+                </span>
 
                 <span className="service-rating">
-          ★ {rating > 0 ? rating.toFixed(1) : '—'}
-        </span>
+                    ★ {rating > 0 ? rating.toFixed(1) : '—'}
+                </span>
             </div>
 
             <div className="service-image">

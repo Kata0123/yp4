@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { api } from '../api/api.js'
 
+// Загружает отзывы об услуге и позволяет создавать или удалять собственные.
 export default function ReviewsPanel({
                                          service,
                                          user,
@@ -16,6 +17,7 @@ export default function ReviewsPanel({
     const [error, setError] = useState('')
     const [message, setMessage] = useState('')
 
+    // Загружает список отзывов выбранной услуги через API.
     async function loadReviews() {
         const data = await api(`/services/${service.code}/reviews`)
         setReviews(Array.isArray(data.reviews) ? data.reviews : [])
@@ -42,6 +44,7 @@ export default function ReviewsPanel({
         }
     }, [service.code])
 
+    // Отправляет новый отзыв и обновляет список после успешного сохранения.
     async function submit(event) {
         event.preventDefault()
         setBusy(true)
@@ -68,6 +71,7 @@ export default function ReviewsPanel({
         }
     }
 
+    // Удаляет собственный отзыв после подтверждения пользователя.
     async function remove(code) {
         if (!window.confirm('Удалить ваш отзыв?')) return
 
@@ -170,17 +174,17 @@ export default function ReviewsPanel({
                             <div className="review-heading">
                                 <strong>{review.author_name}</strong>
                                 <span className="stars">
-                  {'★'.repeat(review.rating)}
+                                    {'★'.repeat(review.rating)}
                                     {'☆'.repeat(5 - review.rating)}
-                </span>
+                                </span>
                             </div>
 
                             <p>{review.comment}</p>
 
                             <div className="review-bottom">
-                <span>
-                  {new Date(review.created_at).toLocaleDateString('ru-RU')}
-                </span>
+                                <span>
+                                    {new Date(review.created_at).toLocaleDateString('ru-RU')}
+                                </span>
 
                                 {user?.code === review.author_code && (
                                     <button
