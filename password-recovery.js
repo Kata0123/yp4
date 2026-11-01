@@ -1,9 +1,11 @@
+
 import { Router } from 'express'
 import crypto from 'node:crypto'
 import bcrypt from 'bcryptjs'
 import nodemailer from 'nodemailer'
 import rateLimit from 'express-rate-limit'
 
+// Создаёт маршруты восстановления пароля.
 export default function createPasswordRecoveryRouter(pool) {
     const router = Router()
 
@@ -21,6 +23,7 @@ export default function createPasswordRecoveryRouter(pool) {
 
     const emailPattern = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.(?:ru|com)$/i
 
+    // Проверяет корректность адреса электронной почты.
     function validateEmail(value) {
         if (
             typeof value !== 'string' ||
@@ -36,6 +39,7 @@ export default function createPasswordRecoveryRouter(pool) {
         return value.trim().toLowerCase()
     }
 
+    // Проверяет формат полного имени.
     function validateName(value) {
         if (
             typeof value !== 'string' ||
@@ -51,6 +55,7 @@ export default function createPasswordRecoveryRouter(pool) {
         return value.trim().replace(/\s+/g, ' ')
     }
 
+    // Проверяет пароль по правилам безопасности приложения.
     function validatePassword(value) {
         if (
             typeof value !== 'string' ||
@@ -69,6 +74,7 @@ export default function createPasswordRecoveryRouter(pool) {
         return value
     }
 
+    // Создаёт защищённый хеш кода подтверждения для конкретного пользователя.
     function codeHash(userId, code) {
         return crypto
             .createHmac('sha256', process.env.JWT_SECRET)
@@ -76,6 +82,7 @@ export default function createPasswordRecoveryRouter(pool) {
             .digest('hex')
     }
 
+    // Отправляет код восстановления по почте или выводит его в режиме разработки.
     async function sendCode(email, code) {
         if (!process.env.SMTP_HOST) {
             if (process.env.NODE_ENV === 'production') {
@@ -104,6 +111,7 @@ export default function createPasswordRecoveryRouter(pool) {
         })
     }
 
+    // Создаёт запрос на восстановление и отправляет код подтверждения.
     router.post('/request', async (req, res) => {
         const email = validateEmail(req.body?.email)
         const fullName = validateName(req.body?.fullName)
@@ -112,9 +120,9 @@ export default function createPasswordRecoveryRouter(pool) {
 
         const result = await pool.query(
             `SELECT id, email
-       FROM users
-       WHERE LOWER(email) = $1
-         AND LOWER(BTRIM(full_name)) = LOWER($2)`,
+             FROM users
+             WHERE LOWER(email) = $1
+               AND LOWER(BTRIM(full_name)) = LOWER($2)`,
             [email, fullName]
         )
 
@@ -126,8 +134,8 @@ export default function createPasswordRecoveryRouter(pool) {
 
         const existing = await pool.query(
             `SELECT created_at
-       FROM recovery_challenges
-       WHERE user_id = $1`,
+             FROM recovery_challenges
+             WHERE user_id = $1`,
             [user.id]
         )
 
@@ -146,14 +154,14 @@ export default function createPasswordRecoveryRouter(pool) {
 
         await pool.query(
             `INSERT INTO recovery_challenges
-       (user_id, code_hash, attempts, expires_at, created_at)
-       VALUES ($1, $2, 0, NOW() + INTERVAL '10 minutes', NOW())
-       ON CONFLICT (user_id)
+                 (user_id, code_hash, attempts, expires_at, created_at)
+             VALUES ($1, $2, 0, NOW() + INTERVAL '10 minutes', NOW())
+                 ON CONFLICT (user_id)
        DO UPDATE SET
-         code_hash = EXCLUDED.code_hash,
-         attempts = 0,
-         expires_at = EXCLUDED.expires_at,
-         created_at = NOW()`,
+                code_hash = EXCLUDED.code_hash,
+                               attempts = 0,
+                               expires_at = EXCLUDED.expires_at,
+                               created_at = NOW()`,
             [user.id, hash]
         )
 
@@ -162,6 +170,7 @@ export default function createPasswordRecoveryRouter(pool) {
         res.json({ message })
     })
 
+    // Проверяет код подтверждения и сохраняет новый пароль.
     router.post('/confirm', async (req, res) => {
         const email = validateEmail(req.body?.email)
         const fullName = validateName(req.body?.fullName)
@@ -181,16 +190,16 @@ export default function createPasswordRecoveryRouter(pool) {
 
             const result = await client.query(
                 `SELECT
-           u.id,
-           u.password_hash,
-           rc.code_hash,
-           rc.attempts,
-           rc.expires_at
-         FROM users u
-         JOIN recovery_challenges rc ON rc.user_id = u.id
-         WHERE LOWER(u.email) = $1
-           AND LOWER(BTRIM(u.full_name)) = LOWER($2)
-         FOR UPDATE OF rc`,
+                     u.id,
+                     u.password_hash,
+                     rc.code_hash,
+                     rc.attempts,
+                     rc.expires_at
+                 FROM users u
+                          JOIN recovery_challenges rc ON rc.user_id = u.id
+                 WHERE LOWER(u.email) = $1
+                   AND LOWER(BTRIM(u.full_name)) = LOWER($2)
+                     FOR UPDATE OF rc`,
                 [email, fullName]
             )
 
@@ -214,8 +223,8 @@ export default function createPasswordRecoveryRouter(pool) {
             if (!crypto.timingSafeEqual(expectedHash, actualHash)) {
                 await client.query(
                     `UPDATE recovery_challenges
-           SET attempts = attempts + 1
-           WHERE user_id = $1`,
+                     SET attempts = attempts + 1
+                     WHERE user_id = $1`,
                     [record.id]
                 )
 
@@ -238,9 +247,9 @@ export default function createPasswordRecoveryRouter(pool) {
 
             await client.query(
                 `UPDATE users
-         SET password_hash = $1,
-             session_version = session_version + 1
-         WHERE id = $2`,
+                 SET password_hash = $1,
+                     session_version = session_version + 1
+                 WHERE id = $2`,
                 [passwordHash, record.id]
             )
 

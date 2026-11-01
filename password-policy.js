@@ -1,3 +1,5 @@
+
+// Выполняет обработку password policy.
 export default function passwordPolicy(req, res, next) {
     const protectedRoutes = [
         ['POST', '/api/auth/register', 'password'],

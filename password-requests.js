@@ -1,7 +1,9 @@
+
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import rateLimit from 'express-rate-limit'
 
+// Создаёт маршруты обработки запросов смены пароля.
 export default function createPasswordRequestsRouter(pool) {
     const router = Router()
 
@@ -19,6 +21,7 @@ export default function createPasswordRequestsRouter(pool) {
         Promise.resolve(handler(req, res, next)).catch(next)
     }
 
+    // Ограничивает доступ к маршруту пользователями с ролью администратора.
     function requireAdmin(req, res, next) {
         if (!req.user) {
             return res.status(401).json({
@@ -35,6 +38,7 @@ export default function createPasswordRequestsRouter(pool) {
         next()
     }
 
+    // Проверяет формат полного имени.
     function validateName(value) {
         if (typeof value !== 'string') {
             throw Object.assign(new Error('Укажите ФИО'), { status: 400 })
@@ -66,6 +70,7 @@ export default function createPasswordRequestsRouter(pool) {
         return name
     }
 
+    // Проверяет корректность адреса электронной почты.
     function validateEmail(value) {
         if (
             typeof value !== 'string' ||
@@ -78,6 +83,7 @@ export default function createPasswordRequestsRouter(pool) {
         return value.trim().toLowerCase()
     }
 
+    // Проверяет пароль по правилам безопасности приложения.
     function validatePassword(value) {
         if (
             typeof value !== 'string' ||
@@ -95,6 +101,7 @@ export default function createPasswordRequestsRouter(pool) {
         return value
     }
 
+    // Создаёт запрос пользователя на изменение забытого пароля.
     router.post('/', limiter, safe(async (req, res) => {
         const fullName = validateName(req.body?.fullName)
         const email = validateEmail(req.body?.email)
@@ -110,9 +117,9 @@ export default function createPasswordRequestsRouter(pool) {
 
         const userResult = await pool.query(
             `SELECT id, password_hash
-       FROM users
-       WHERE LOWER(email) = $1
-         AND LOWER(BTRIM(full_name)) = LOWER($2)`,
+             FROM users
+             WHERE LOWER(email) = $1
+               AND LOWER(BTRIM(full_name)) = LOWER($2)`,
             [email, fullName]
         )
 
@@ -132,11 +139,11 @@ export default function createPasswordRequestsRouter(pool) {
 
         const result = await pool.query(
             `INSERT INTO password_change_requests
-       (user_id, password_hash)
-       VALUES ($1, $2)
-       ON CONFLICT (user_id) WHERE status = 'pending'
-       DO NOTHING
-       RETURNING code`,
+                 (user_id, password_hash)
+             VALUES ($1, $2)
+                 ON CONFLICT (user_id) WHERE status = 'pending'
+                 DO NOTHING
+                 RETURNING code`,
             [user.id, passwordHash]
         )
 
@@ -147,27 +154,29 @@ export default function createPasswordRequestsRouter(pool) {
         })
     }))
 
+    // Возвращает список запросов на смену пароля для администратора.
     router.get('/admin', requireAdmin, safe(async (req, res) => {
         const result = await pool.query(
             `SELECT
-         r.code,
-         r.status,
-         r.created_at,
-         r.processed_at,
-         u.code AS user_code,
-         u.full_name,
-         u.email
-       FROM password_change_requests r
-       JOIN users u ON u.id = r.user_id
-       ORDER BY
-         CASE WHEN r.status = 'pending' THEN 0 ELSE 1 END,
-         r.created_at DESC
-       LIMIT 200`
+                 r.code,
+                 r.status,
+                 r.created_at,
+                 r.processed_at,
+                 u.code AS user_code,
+                 u.full_name,
+                 u.email
+             FROM password_change_requests r
+                      JOIN users u ON u.id = r.user_id
+             ORDER BY
+                 CASE WHEN r.status = 'pending' THEN 0 ELSE 1 END,
+                 r.created_at DESC
+                 LIMIT 200`
         )
 
         res.json({ items: result.rows })
     }))
 
+    // Подтверждает или отклоняет запрос на изменение пароля.
     router.patch('/admin/:code/:action', requireAdmin, safe(async (req, res) => {
         const { code, action } = req.params
 
@@ -190,14 +199,14 @@ export default function createPasswordRequestsRouter(pool) {
 
             const result = await client.query(
                 `SELECT
-           r.id,
-           r.user_id,
-           r.password_hash,
-           r.status
-         FROM password_change_requests r
-         JOIN users u ON u.id = r.user_id
-         WHERE r.code = $1
-         FOR UPDATE OF r`,
+                     r.id,
+                     r.user_id,
+                     r.password_hash,
+                     r.status
+                 FROM password_change_requests r
+                          JOIN users u ON u.id = r.user_id
+                 WHERE r.code = $1
+                     FOR UPDATE OF r`,
                 [code]
             )
 
@@ -222,19 +231,19 @@ export default function createPasswordRequestsRouter(pool) {
             if (action === 'approve') {
                 await client.query(
                     `UPDATE users
-           SET password_hash = $1,
-               session_version = session_version + 1
-           WHERE id = $2`,
+                     SET password_hash = $1,
+                         session_version = session_version + 1
+                     WHERE id = $2`,
                     [request.password_hash, request.user_id]
                 )
             }
 
             await client.query(
                 `UPDATE password_change_requests
-         SET status = $1,
-             processed_at = NOW(),
-             password_hash = ''
-         WHERE id = $2`,
+                 SET status = $1,
+                     processed_at = NOW(),
+                     password_hash = ''
+                 WHERE id = $2`,
                 [
                     action === 'approve' ? 'approved' : 'rejected',
                     request.id

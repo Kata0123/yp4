@@ -1,19 +1,24 @@
 {
-  "name": "yp4",
-  "private": true,
+  "name": "yp4-backend",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "admin": "node create-admin.js"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.0",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^5.0.0",
-    "vite": "^7.0.0"
+    "nodemon": "^3.1.10"
   }
 }

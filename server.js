@@ -1,3 +1,4 @@
+
 import createPasswordRequestsRouter from './password-requests.js'
 import createChangePasswordRouter from './change-password.js'
 import createPasswordRecoveryRouter from './password-recovery.js'
@@ -52,10 +53,12 @@ class HttpError extends Error {
     }
 }
 
+// Формирует ошибку с HTTP-статусом и сообщением.
 function fail(status, message) {
     throw new HttpError(status, message)
 }
 
+// Проверяет обязательное строковое поле и его допустимую длину.
 function field(value, name, min = 1, max = 2000) {
     if (typeof value !== 'string') {
         fail(400, `Поле «${name}» должно быть текстом`)
@@ -70,6 +73,7 @@ function field(value, name, min = 1, max = 2000) {
     return result
 }
 
+// Проверяет и нормализует электронную почту.
 function emailField(value) {
     const email = field(value, 'Email', 5, 254).toLowerCase()
 
@@ -82,6 +86,7 @@ function emailField(value) {
     return email
 }
 
+// Проверяет формат телефонного номера.
 function phoneField(value) {
     const phone = field(value, 'Телефон', 11, 11)
 
@@ -92,6 +97,7 @@ function phoneField(value) {
     return phone
 }
 
+// Проверяет корректность полного имени пользователя.
 function nameField(value) {
     const name = field(value, 'ФИО', 5, 120)
     const words = name.split(' ')
@@ -121,6 +127,7 @@ function nameField(value) {
     return name
 }
 
+// Проверяет пароль согласно серверным ограничениям.
 function passwordField(value) {
     if (
         typeof value !== 'string' ||
@@ -141,6 +148,7 @@ function passwordField(value) {
     return value
 }
 
+// Проверяет корректность публичного идентификатора ресурса.
 function uuidField(value) {
     if (
         typeof value !== 'string' ||
@@ -152,6 +160,7 @@ function uuidField(value) {
     return value
 }
 
+// Проверяет необязательный публичный идентификатор.
 function optionalUuid(value) {
     if (value === null || value === undefined || value === '') {
         return null
@@ -160,6 +169,7 @@ function optionalUuid(value) {
     return uuidField(value)
 }
 
+// Проверяет целое число и допустимый диапазон.
 function intField(value, name, min, max) {
     const number = Number(value)
 
@@ -178,6 +188,7 @@ function intField(value, name, min, max) {
     return number
 }
 
+// Проверяет допустимость денежной суммы.
 function priceField(value) {
     const raw = String(value)
 
@@ -191,6 +202,7 @@ function priceField(value) {
     return Number(raw)
 }
 
+// Преобразует и проверяет логическое значение.
 function boolField(value) {
     if (typeof value !== 'boolean') {
         fail(400, 'Некорректное значение активности услуги')
@@ -199,6 +211,7 @@ function boolField(value) {
     return value
 }
 
+// Проверяет допустимое имя изображения услуги.
 function imageField(value) {
     if (value === null || value === undefined || value === '') {
         return null
@@ -211,12 +224,14 @@ function imageField(value) {
     return value
 }
 
+// Возвращает текущую дату для проверок сроков заказа.
 function today() {
     return new Date().toLocaleDateString('sv-SE', {
         timeZone: APP_TIMEZONE
     })
 }
 
+// Проверяет дату, включая ограничение на прошедшие дни.
 function dateField(value, allowPast = false) {
     if (
         typeof value !== 'string' ||
@@ -243,6 +258,7 @@ function dateField(value, allowPast = false) {
     return value
 }
 
+// Проверяет обязательные элементы адреса.
 function addressField(value) {
     const address = field(value, 'Адрес', 10, 250)
     const parts = address.split(',').map(part => part.trim())
@@ -278,6 +294,7 @@ function addressField(value) {
         fail(400, 'Укажите корректную улицу')
     }
 
+
     if (
         !/^\d{1,5}[А-ЯЁа-яёA-Za-z]?(?:\/\d{1,5}[А-ЯЁа-яёA-Za-z]?)?$/.test(house)
     ) {
@@ -296,10 +313,14 @@ function addressField(value) {
     return address
 }
 
+
+
+// Проверяет текст дополнительного комментария.
 function commentField(value) {
     return field(value ?? '', 'Комментарий', 0, 1000)
 }
 
+// Проверяет допустимое значение статуса заказа.
 function statusField(value) {
     if (!STATUSES.includes(value)) {
         fail(400, 'Некорректный статус заказа')
@@ -308,6 +329,7 @@ function statusField(value) {
     return value
 }
 
+// Формирует публичное представление пользователя без секретных полей.
 function safeUser(user) {
     return {
         code: user.code,
@@ -319,6 +341,7 @@ function safeUser(user) {
     }
 }
 
+// Создаёт пользовательскую сессию и устанавливает cookie.
 function setSession(res, user) {
     const token = jwt.sign(
         {
@@ -332,6 +355,7 @@ function setSession(res, user) {
     res.cookie('session', token, cookieOptions)
 }
 
+// Удаляет данные аутентификации из cookie.
 function clearSession(res) {
     const { maxAge, ...options } = cookieOptions
     res.clearCookie('session', options)
@@ -339,7 +363,7 @@ function clearSession(res) {
 
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    limit: 20,
+    limit: 100,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     message: {
@@ -388,6 +412,7 @@ app.use(async (req, res, next) => {
     next()
 })
 
+// Запрещает доступ к маршруту без действующей авторизации.
 function requireAuth(req, res, next) {
     if (!req.user) {
         return next(new HttpError(401, 'Необходимо войти в аккаунт'))
@@ -396,6 +421,7 @@ function requireAuth(req, res, next) {
     next()
 }
 
+// Ограничивает доступ к маршруту пользователями с ролью администратора.
 function requireAdmin(req, res, next) {
     if (!req.user) {
         return next(new HttpError(401, 'Необходимо войти в аккаунт'))
@@ -408,6 +434,7 @@ function requireAdmin(req, res, next) {
     next()
 }
 
+// Проверяет и подготавливает данные услуги перед записью в БД.
 function serviceData(body) {
     return {
         categoryCode: optionalUuid(body.categoryCode),
@@ -420,6 +447,7 @@ function serviceData(body) {
     }
 }
 
+// Подготавливает публичные идентификаторы позиций корзины.
 function cartCodes(value) {
     const parts = String(value).split(':')
 
@@ -439,17 +467,20 @@ app.use('/api/auth', createChangePasswordRouter(pool))
 
 app.use('/api/password-requests', createPasswordRequestsRouter(pool))
 
+// Проверяет доступность сервера и базы данных.
 app.get('/api/health', async (req, res) => {
     await pool.query('SELECT 1')
     res.json({ status: 'ok' })
 })
 
+// Возвращает данные текущей сессии.
 app.get('/api/auth/me', (req, res) => {
     res.json({
         user: req.user ? safeUser(req.user) : null
     })
 })
 
+// Регистрирует пользователя после проверки данных.
 app.post('/api/auth/register', authLimiter, async (req, res) => {
     const fullName = nameField(req.body.fullName)
     const email = emailField(req.body.email)
@@ -472,6 +503,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     res.status(201).json({ user: safeUser(user) })
 })
 
+// Проверяет учётные данные и создаёт сессию.
 app.post('/api/auth/login', authLimiter, async (req, res) => {
     const email = field(req.body.email, 'Email', 5, 254).toLowerCase()
     const password = field(req.body.password, 'Пароль', 1, 200)
@@ -494,11 +526,13 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
     res.json({ user: safeUser(user) })
 })
 
+// Завершает текущую пользовательскую сессию.
 app.post('/api/auth/logout', (req, res) => {
     clearSession(res)
     res.json({ message: 'Вы вышли из аккаунта' })
 })
 
+// Начинает процедуру восстановления доступа.
 app.post('/api/auth/forgot', authLimiter, async (req, res) => {
     const email = emailField(req.body.email)
 
@@ -557,6 +591,8 @@ app.post('/api/auth/forgot', authLimiter, async (req, res) => {
     })
 })
 
+
+// Устанавливает новый пароль после проверки данных восстановления.
 app.post('/api/auth/reset', authLimiter, async (req, res) => {
     const token = field(req.body.token, 'Токен', 64, 64)
     const password = passwordField(req.body.password)
@@ -615,6 +651,7 @@ app.post('/api/auth/reset', authLimiter, async (req, res) => {
     }
 })
 
+// Читает или обновляет сведения о текущем пользователе.
 app.put('/api/profile', requireAuth, async (req, res) => {
     const fullName = nameField(req.body.fullName)
     const email = emailField(req.body.email)
@@ -636,6 +673,7 @@ app.put('/api/profile', requireAuth, async (req, res) => {
     res.json({ user: safeUser(result.rows[0]) })
 })
 
+// Изменяет пароль авторизованного пользователя.
 app.put('/api/profile/password', requireAuth, async (req, res) => {
     const currentPassword = field(
         req.body.currentPassword,
@@ -684,6 +722,7 @@ app.put('/api/profile/password', requireAuth, async (req, res) => {
     res.json({ message: 'Пароль успешно изменён' })
 })
 
+// Получает категории доступных услуг.
 app.get('/api/categories', async (req, res) => {
     const result = await pool.query(
         `SELECT code, name, description
@@ -694,6 +733,7 @@ app.get('/api/categories', async (req, res) => {
     res.json({ categories: result.rows })
 })
 
+// Получает каталог услуг с возможностью поиска и фильтрации.
 app.get('/api/services', async (req, res) => {
     const conditions = ['s.active = TRUE']
     const values = []
@@ -777,6 +817,7 @@ app.get('/api/services', async (req, res) => {
     res.json({ services: result.rows })
 })
 
+// Возвращает все отзывы по выбранной услуге.
 app.get('/api/services/:code/reviews', async (req, res) => {
     const code = uuidField(req.params.code)
 
@@ -795,6 +836,7 @@ app.get('/api/services/:code/reviews', async (req, res) => {
     res.json({ reviews: result.rows })
 })
 
+// Сохраняет новый отзыв авторизованного пользователя или обновляет существующий.
 app.post('/api/services/:code/reviews', requireAuth, async (req, res) => {
     const code = uuidField(req.params.code)
     const rating = intField(req.body.rating, 'Оценка', 1, 5)
@@ -822,6 +864,7 @@ app.post('/api/services/:code/reviews', requireAuth, async (req, res) => {
     res.status(201).json({ message: 'Отзыв сохранён' })
 })
 
+// Удаляет собственный отзыв с проверкой принадлежности пользователю.
 app.delete('/api/reviews/:code', requireAuth, async (req, res) => {
     const code = uuidField(req.params.code)
 
@@ -839,6 +882,8 @@ app.delete('/api/reviews/:code', requireAuth, async (req, res) => {
     res.json({ message: 'Отзыв удалён' })
 })
 
+
+// Читает и изменяет корзину текущего пользователя.
 app.get('/api/cart', requireAuth, async (req, res) => {
     const result = await pool.query(
         `SELECT
@@ -870,6 +915,7 @@ app.get('/api/cart', requireAuth, async (req, res) => {
     })
 })
 
+// Читает и изменяет корзину текущего пользователя.
 app.post('/api/cart', requireAuth, async (req, res) => {
     const code = uuidField(req.body.serviceCode)
     const quantity = intField(
@@ -903,6 +949,7 @@ app.post('/api/cart', requireAuth, async (req, res) => {
     })
 })
 
+// Изменяет или удаляет позицию корзины.
 app.patch('/api/cart/:code', requireAuth, async (req, res) => {
     const code = uuidField(req.params.code)
     const quantity = intField(req.body.quantity, 'Количество', 1, 99)
@@ -925,6 +972,7 @@ app.patch('/api/cart/:code', requireAuth, async (req, res) => {
     res.json({ message: 'Количество изменено' })
 })
 
+// Изменяет или удаляет позицию корзины.
 app.delete('/api/cart/:code', requireAuth, async (req, res) => {
     const code = uuidField(req.params.code)
 
@@ -973,6 +1021,7 @@ const ordersSelect = `
              LEFT JOIN order_items oi ON oi.order_id = o.id
 `
 
+// Получает заказы или создаёт новый заказ в базе данных.
 app.get('/api/orders', requireAuth, async (req, res) => {
     const result = await pool.query(
         `${ordersSelect}
@@ -985,6 +1034,7 @@ app.get('/api/orders', requireAuth, async (req, res) => {
     res.json({ orders: result.rows })
 })
 
+// Получает заказы или создаёт новый заказ в базе данных.
 app.post('/api/orders', requireAuth, async (req, res) => {
     const address = addressField(req.body.address)
     const deliveryDate = dateField(req.body.deliveryDate)
@@ -1080,6 +1130,7 @@ app.post('/api/orders', requireAuth, async (req, res) => {
     }
 })
 
+// Отменяет заказ при допустимом статусе.
 app.patch('/api/orders/:code/cancel', requireAuth, async (req, res) => {
     const code = uuidField(req.params.code)
 
@@ -1185,6 +1236,7 @@ const adminQueries = {
   `
 }
 
+// Проверяет название ресурса, доступного административному API.
 function adminResource(value) {
     if (!Object.hasOwn(adminQueries, value)) {
         fail(404, 'Неизвестный раздел администрирования')
@@ -1193,6 +1245,7 @@ function adminResource(value) {
     return value
 }
 
+// Получает список записей выбранного ресурса для администратора.
 app.get('/api/admin/:resource', requireAdmin, async (req, res) => {
     const resource = adminResource(req.params.resource)
     const result = await pool.query(adminQueries[resource])
@@ -1200,6 +1253,7 @@ app.get('/api/admin/:resource', requireAdmin, async (req, res) => {
     res.json({ items: result.rows })
 })
 
+// Создаёт новую запись в выбранном административном разделе.
 app.post('/api/admin/:resource', requireAdmin, async (req, res) => {
     const resource = adminResource(req.params.resource)
     const body = req.body
@@ -1417,6 +1471,7 @@ app.post('/api/admin/:resource', requireAdmin, async (req, res) => {
     })
 })
 
+// Изменяет выбранную запись через административный API.
 app.put('/api/admin/:resource/:code', requireAdmin, async (req, res) => {
     const resource = adminResource(req.params.resource)
     const body = req.body
@@ -1596,6 +1651,7 @@ app.put('/api/admin/:resource/:code', requireAdmin, async (req, res) => {
     res.json({ message: 'Изменения сохранены' })
 })
 
+// Удаляет запись выбранного административного ресурса.
 app.delete('/api/admin/:resource/:code', requireAdmin, async (req, res) => {
     const resource = adminResource(req.params.resource)
 
@@ -1650,12 +1706,14 @@ app.delete('/api/admin/:resource/:code', requireAdmin, async (req, res) => {
     })
 })
 
+// Обрабатывает обращения к несуществующим API-маршрутам.
 app.use((req, res) => {
     res.status(404).json({
         error: 'API-маршрут не найден'
     })
 })
 
+// Преобразует ошибки приложения и PostgreSQL в HTTP-ответы.
 app.use((error, req, res, next) => {
     if (error instanceof HttpError) {
         return res.status(error.status).json({
@@ -1698,6 +1756,7 @@ app.use((error, req, res, next) => {
     })
 })
 
+// Запускает HTTP-сервер на порту из переменных окружения.
 app.listen(PORT, () => {
     console.log(`Backend: http://localhost:${PORT}`)
 })
